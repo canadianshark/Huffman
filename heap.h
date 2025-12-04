@@ -1,7 +1,7 @@
 #pragma once
 #include <stdlib.h>
-#include "freq.h"
-#include "tree.h"
+
+typedef struct Node Node;
 
 typedef struct MinHeap{
     Node** nodes;

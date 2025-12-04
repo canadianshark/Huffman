@@ -14,10 +14,14 @@ int main(void) {
       printf("Byte: %d - freq: %u \n", n, frequencyTable[n] );
     }
   }
-  printf("--------------------------------HEAP_TEST-------------------------------------------------\n");
+  printf("\n--------------------------------HEAP_TEST-------------------------------------------------\n");
   MinHeap* heap = min_heap_build(frequencyTable);
+  for(int n = 0; n < heap->size; n++){
+    printf("|b:%d : f:%u| ", heap->nodes[n]->byte, heap->nodes[n]->freq);
+  }
+  printf("\n--------------------------------TREE_TEST-------------------------------------------------\n");
   Node* treeRoot = create_tree(heap);
-  print_tree(treeRoot,0);
+  print_tree(treeRoot);
 
 
 

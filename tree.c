@@ -1,8 +1,9 @@
 #include "tree.h"
+#include "heap.h"
 
 
 struct Node* make_node(unsigned char byte, unsigned int freq){
-    Node* newNode = malloc(sizeof(Node*));
+    Node* newNode = malloc(sizeof(Node));
     newNode->byte = byte;
     newNode->freq = freq;
     newNode->left = newNode->right = NULL;
@@ -27,32 +28,17 @@ struct Node* create_tree(MinHeap* heap){
     return min_heap_extract(heap);
 }
 
-void print_free(Node* root, int depth){
+void print_tree(Node* root){
+
         if (root == NULL) return;
 
-        // Отступы по уровню
-        for (int i = 0; i < depth; i++) {
-            printf("  ");
-        }
-
-        if (depth > 0) {
-            printf("└─ ");
-        }
-
-        // Вывод узла
-        if (root->byte != 0) {
-            printf("'%c': %u\n", root->byte, root->freq);
+        if (root->left == NULL && root->right == NULL) {
+            printf("Leaf: freq=%u, byte=0x%02X\n", root->freq, root->byte);
         } else {
-            printf("[%u]\n", root->freq);
+            printf("Internal: freq=%u\n", root->freq);
+            print_tree(root->left);
+            print_tree(root->right);
         }
-
-        // Детские ноды
-        print_tree(root->left, depth + 1);
-        print_tree(root->right, depth + 1);
-
-
-
-
 
 }
 

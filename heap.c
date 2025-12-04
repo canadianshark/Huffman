@@ -1,6 +1,6 @@
 #include "heap.h"
 #include "tree.h"
-#include "freq.h"
+
 
 
 
