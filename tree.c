@@ -42,3 +42,13 @@ void print_tree(Node* root){
 
 }
 
+void free_tree(Node* root){
+    if(root == NULL){ return;}
+    Node* left = root->left;
+    Node* right = root->right;
+    free(root);
+    free_tree(left);
+    free_tree(right);
+
+}
+
