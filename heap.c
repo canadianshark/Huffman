@@ -8,7 +8,13 @@ void min_heap_insert(MinHeap* heap, struct Node* node) {
     // +Место, есл все занято
     if (heap->size == heap->capacity) {
         heap->capacity++;
-       heap->nodes = realloc(heap->nodes, heap->capacity * sizeof(Node*));
+        if(heap->nodes == NULL){
+            heap->nodes = malloc(heap->capacity * sizeof(Node*));
+        }
+        else{
+            heap->nodes = realloc(heap->nodes, heap->capacity * sizeof(Node*));
+        }
+
     }
 
     // Берем конец кучи чтобы оттуда просеять
@@ -81,6 +87,7 @@ MinHeap* min_heap_build(unsigned int* freq){
     MinHeap* heap = malloc(sizeof(MinHeap));
     heap->size = 0;
     heap->capacity = 0;
+    heap->nodes = NULL;
     for(int n = 0; n < 256; n++){
         if(freq[n] != 0){
             min_heap_insert(heap, make_node(n,freq[n]));

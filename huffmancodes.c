@@ -3,6 +3,7 @@
 #include "bitreader.h"
 #include "heap.h"
 #include "tree.h"
+#include <ctype.h>
 
 
 
@@ -84,9 +85,11 @@ void read_header(FILE* file, unsigned int* freqTable,unsigned int* original_size
         // Символ
         unsigned char symbol = fgetc(file);
 
-        // Читаем сам код
+        // Читаем Частоту
         unsigned int freq = 0;
         fread(&freq,4,1,file);
+
+
 
 
         freqTable[symbol] = freq;
@@ -117,19 +120,37 @@ void encode(FILE* input, HuffmanCode* codes , unsigned int* freq, unsigned int o
     bit_writer_flush(&writer);
 }
 
+
 void decode(FILE* input, FILE* output){
+    rewind(input);
     // Читаем таблицу частот из заголовка
     unsigned int frequencyTable[256] = {0};
     unsigned int original_size = 0;
     read_header(input,frequencyTable,&original_size);
 
 
+
     //Создаем кучу и строим обратно дерево
     MinHeap* heap = min_heap_build(frequencyTable);
+    if(!heap) {
+        printf("ERROR: Failed to build heap\n");
+        return;
+    }
+
     Node* TreeRoot = create_tree(heap);
+    if(!TreeRoot) {
+        printf("ERROR: Failed to create tree\n");
+        return;
+    }
+
 
     if(TreeRoot->left == NULL && TreeRoot->right == NULL){
-        fputc(TreeRoot->byte, output);
+        printf("DEBUG decode: Single symbol tree\n");
+        for(unsigned int i = 0; i < original_size; i++) {
+            fputc(TreeRoot->byte, output);
+        }
+        free_tree(TreeRoot);
+        min_heap_free(heap);
         return;
     }
 
@@ -141,16 +162,28 @@ void decode(FILE* input, FILE* output){
     unsigned int decoded_count = 0;
     int current_length = 0;
 
+
     while (decoded_count < original_size) {
         // Читаем следующий бит
         int bit = bit_reader_read_bit(&reader);
-        if (bit == -1){break;}
+        if (bit == -1){
+            printf("ERROR: Unexpected EOF at %u/%u symbols\n", decoded_count, original_size);
+            break;
+        }
 
         if(bit == 1){
+            if(!TreePtr->right) {
+                printf("ERROR: TreePtr->right is NULL!\n");
+                break;
+            }
             TreePtr = TreePtr->right;
             current_length++;
         }
         if(bit == 0){
+            if(!TreePtr->left) {
+                printf("ERROR: TreePtr->left is NULL!\n");
+                break;
+            }
             TreePtr = TreePtr->left;
             current_length++;
         }
@@ -163,6 +196,8 @@ void decode(FILE* input, FILE* output){
         }
 
     }
-
+    printf("DEBUG decode: Finished, decoded %u/%u symbols\n",
+           decoded_count, original_size);
+    free_tree(TreeRoot);
 }
 
